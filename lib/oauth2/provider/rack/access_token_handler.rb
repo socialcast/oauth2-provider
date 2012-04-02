@@ -118,6 +118,9 @@ module OAuth2::Provider::Rack
         elsif !@oauth_client.allow_grant_type?(grant_type)
           log "CLIENT ERROR: Client #{@oauth_client.name} (#{client_id}) may not use the #{grant_type} grant type"
           Responses.json_error 'unauthorized_client'
+        else
+          log "Requesting Client authenticated: #{@oauth_client.name} (#{client_id})"
+          nil
         end
       end
     end
