@@ -136,7 +136,7 @@ module OAuth2::Provider::Rack
     private
 
     def log(message)
-      OAuth2::Provider.logger.debug ["[OAUTH2-PROVIDER]", Time.now.utc.strftime("%F %T"), message].join(" ") if OAuth2::Provider.logger
+      OAuth2::Provider.logger.info ["[OAUTH2-PROVIDER]", Time.now.utc.strftime("%F %T"), message].join(" ") if OAuth2::Provider.logger
     end
 
   end
