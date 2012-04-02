@@ -133,11 +133,10 @@ module OAuth2::Provider::Rack
       "handle_#{grant_type}_grant_type"
     end
 
-
     private
 
     def log(message)
-      OAuth2::Provider.logger.error ["[OAUTH2-PROVIDER]", Time.now.utc.strftime("%F %R"), message].join(" ") if OAuth2::Provider.logger
+      OAuth2::Provider.logger.error ["[OAUTH2-PROVIDER]", Time.now.utc.strftime("%F %T"), message].join(" ") if OAuth2::Provider.logger
     end
 
   end
