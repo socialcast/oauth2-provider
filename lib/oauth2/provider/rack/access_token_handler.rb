@@ -30,11 +30,12 @@ module OAuth2::Provider::Rack
     end
 
     def handle_grant_type
-      send grant_type_handler_method(request.params["grant_type"])
+      grant_type = request.params["grant_type"]
+      log "Processing #{grant_type} grant request..."
+      send grant_type_handler_method(grant_type)
     end
 
     def handle_password_grant_type
-      log "Processing password grant..."
       with_required_params 'username', 'password' do |username, password|
         if resource_owner = OAuth2::Provider.resource_owner_class.authenticate_with_username_and_password(username, password)
           token_response OAuth2::Provider.access_token_class.create!(
@@ -48,7 +49,6 @@ module OAuth2::Provider::Rack
     end
 
     def handle_authorization_code_grant_type
-      log "Processing authorization code grant..."
       with_required_params 'code', 'redirect_uri' do |code, redirect_uri|
         if token = oauth_client.authorization_codes.claim(code, redirect_uri)
           token_response token
@@ -60,7 +60,6 @@ module OAuth2::Provider::Rack
     end
 
     def handle_refresh_token_grant_type
-      log "Processing refresh grant..."
       with_required_params 'refresh_token' do |refresh_token|
         if token = oauth_client.access_tokens.refresh_with(refresh_token)
           token_response token
@@ -72,7 +71,6 @@ module OAuth2::Provider::Rack
     end
 
     def handle_client_credentials_grant_type
-      log "Processing authorization code grant..." 
       token_response OAuth2::Provider.access_token_class.create!(
         :authorization => OAuth2::Provider.authorization_class.create!(:resource_owner => oauth_client, :client => oauth_client),
         :refresh_token => nil
@@ -95,6 +93,7 @@ module OAuth2::Provider::Rack
     end
 
     def token_response(token)
+      log "SUCCESS: Access granted; issuing token."
       json = token.as_json.tap do |json|
         json[:state] = request.params['state'] if request.params['state']
       end
@@ -135,7 +134,7 @@ module OAuth2::Provider::Rack
     private
 
     def log(message)
-      env['rack.errors'].puts ["[OAUTH2-PROVIDER]", Time.now.utc.strftime("%F %R"), message].join(" ")
+      OAuth2::Provider.logger.error ["[OAUTH2-PROVIDER]", Time.now.utc.strftime("%F %R"), message].join(" ") if OAuth2::Provider.logger
     end
 
   end
