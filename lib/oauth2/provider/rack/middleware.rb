@@ -1,5 +1,7 @@
 module OAuth2::Provider::Rack
   class Middleware
+    include OAuth2::Provider::Logging
+
     def initialize(app)
       @app = app
     end
@@ -15,6 +17,7 @@ module OAuth2::Provider::Rack
         end
       end
     rescue InvalidRequest => e
+      log "FAILURE: Responding with Bad Request due to '#{e}'"
       [400, {}, e.message]
     end
 

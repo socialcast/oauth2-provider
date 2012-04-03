@@ -2,6 +2,8 @@ require 'httpauth'
 
 module OAuth2::Provider::Rack
   class AccessTokenHandler
+    include OAuth2::Provider::Logging
+
     attr_reader :app, :env, :request
 
     def initialize(app, env)
@@ -14,7 +16,7 @@ module OAuth2::Provider::Rack
       if request.post?
         block_unsupported_grant_types || handle_basic_auth_header || block_invalid_clients || handle_grant_type
       else
-        log "Client error: token endpoint only supports POST"
+        log "CLIENT ERROR: token endpoint only supports POST"
         Responses.only_supported 'POST'
       end
     end
@@ -42,7 +44,7 @@ module OAuth2::Provider::Rack
             :authorization => OAuth2::Provider.authorization_class.create!(:resource_owner => resource_owner, :client => oauth_client)
           )
         else
-          log "CLIENT ERROR: Failed to authenticate with supplied credentials" 
+          log "CLIENT ERROR: Failed to authenticate #{username} with the supplied credentials" 
           Responses.json_error 'invalid_grant'
         end
       end
@@ -93,7 +95,7 @@ module OAuth2::Provider::Rack
     end
 
     def token_response(token)
-      log "SUCCESS: Access granted; issuing token."
+      log "SUCCESS: Responding with OK."
       json = token.as_json.tap do |json|
         json[:state] = request.params['state'] if request.params['state']
       end
@@ -132,12 +134,5 @@ module OAuth2::Provider::Rack
     def grant_type_handler_method(grant_type)
       "handle_#{grant_type}_grant_type"
     end
-
-    private
-
-    def log(message)
-      OAuth2::Provider.logger.info ["[OAUTH2-PROVIDER]", Time.now.utc.strftime("%F %T"), message].join(" ") if OAuth2::Provider.logger
-    end
-
   end
 end
