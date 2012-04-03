@@ -40,16 +40,27 @@ module OAuth2::Provider::Models::AccessToken
   end
 
   module ClassMethods
+    include OAuth2::Provider::Logging
+
     def refresh_with(refresh_token)
-      if refresh_token && token = find_by_refresh_token(refresh_token)
+      if !refresh_token
+        log "Refresh Failed: No refresh token provided"
+        return nil
+      end
+
+      if token = find_by_refresh_token(refresh_token)
         if token.refreshable?
           new(:authorization => token.authorization).tap do |result|
             if result.authorization.expires_at && result.authorization.expires_at < result.expires_at
               result.expires_at = result.authorization.expires_at
             end
-            result.save!
+            result.save!.tap{ log "Refreshed session until #{result.expires_at.utc}" }
           end
+        else
+          log "Refresh Failed: refresh token '#{refresh_token}' is not refreshable."
         end
+      else
+        log "Refresh Failed: no token matching '#{refresh_token}' not found"
       end
     end
   end
