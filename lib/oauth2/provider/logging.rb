@@ -19,22 +19,29 @@ module OAuth2::Provider
     end
 
     def log(message, extra = {})
-      rack_env = self.respond_to?(:env) ? env : nil
-      logger = OAuth2::Provider.logger || (rack_env && rack_env['rack.logger'])
-      return unless logger
+      return unless current_logger
 
       extra = (@logging_context && @logging_context.merge(extra)) || extra
       extra[:level] ||= :info
-      extra[:request_id] ||= (rack_env && rack_env['http_x_request_id']) || 'N/A'
+      extra[:request_id] ||= (get_env_property('http_x_request_id') || 'N/A')
 
-      logger.add SEVERITY_MAPPING[extra[:level]], format_log_message(message, extra)
+      current_logger.add SEVERITY_MAPPING[extra[:level]], format_log_message(message, extra)
       nil
     end
 
     private
+   
+    # FIXME this is a little gross, but it makes it easy to stub.
+    def get_env_property(name)
+      (self.respond_to?(:env) ? env : {})[name]
+    end
+
+    def current_logger
+      OAuth2::Provider.logger || get_env_property('rack.logger')
+    end
 
     def format_log_message(message, extra = {})
-      [ "[#{extra[:component] || 'OAUTH2-PROVIDER'}]", extra[:request_id] || "N/A", Time.now.iso8601, '-', message].join(" ") 
+      [ "[#{extra[:component] || 'OAUTH2-PROVIDER'}]", extra[:request_id] || "N/A", Time.now.utc.iso8601, '-', message].join(" ") 
     end
   end
 end
