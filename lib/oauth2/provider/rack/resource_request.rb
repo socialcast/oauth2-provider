@@ -70,8 +70,12 @@ module OAuth2::Provider::Rack
         @token_validated = true
         block_invalid_request
         block_invalid_token
+
         # TODO log token hash
-        log "Verified authorization for #{@authorization.client.name} (#{@authorization.client.oauth_identifier}) until #{@authorization.expires_at.iso8602}, next refresh in #{(@access_token.expires_at - Time.now).floor} second(s)"
+        msg = "Verified authorization for #{@authorization.client.name} (#{@authorization.client.oauth_identifier})"
+        msg += @authorization.expires_at ? " until #{@authorization.expires_at.utc.iso8061}" : " permanently"
+        msg += " next refresh in #{(@access_token.expires_at - Time.now).floor} second(s)" 
+        log msg 
       end
     end
 
