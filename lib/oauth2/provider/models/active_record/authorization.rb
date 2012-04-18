@@ -14,3 +14,4 @@ class OAuth2::Provider::Models::ActiveRecord::Authorization < ActiveRecord::Base
 
   include Behaviour
 end
+
