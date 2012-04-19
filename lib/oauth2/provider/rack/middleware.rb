@@ -6,7 +6,7 @@ module OAuth2::Provider::Rack
     end
 
     def call(env)
-      logger = OAuth2::Provider::Logging::PortableLogger.new(env)
+      logger = Rack::Logster::Logging::PortableLogger.new(env)
 
       begin
         request = env['oauth2'] = ResourceRequest.new(env)

@@ -40,8 +40,6 @@ module OAuth2::Provider::Models::AccessToken
   end
 
   module ClassMethods
-    include OAuth2::Provider::Logging
-
     def refresh_with(refresh_token, logger = nil)
       if !refresh_token
         logger.error "Refresh Failed: No refresh token provided" if logger

@@ -3,7 +3,7 @@ require 'rack/auth/abstract/request'
 module OAuth2::Provider::Rack
   class ResourceRequest < Rack::Request
     include Responses
-    include OAuth2::Provider::Logging
+    include Rack::Logster::Logging
 
     delegate :has_scope?, :to => :authorization
 

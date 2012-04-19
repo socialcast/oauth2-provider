@@ -1,6 +1,6 @@
 module OAuth2::Provider::Rack
   class AuthorizationCodeRequest
-    include OAuth2::Provider::Logging
+    include Rack::Logster::Logging
    
     attr_reader :env
 

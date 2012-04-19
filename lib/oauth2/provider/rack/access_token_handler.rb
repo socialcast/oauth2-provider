@@ -2,7 +2,7 @@ require 'httpauth'
 
 module OAuth2::Provider::Rack
   class AccessTokenHandler
-    include OAuth2::Provider::Logging
+    include Rack::Logster::Logging
 
     attr_reader :app, :env, :request
 
