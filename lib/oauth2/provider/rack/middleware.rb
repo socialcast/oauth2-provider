@@ -1,24 +1,27 @@
 module OAuth2::Provider::Rack
   class Middleware
-    include OAuth2::Provider::Logging
 
     def initialize(app)
       @app = app
     end
 
     def call(env)
-      request = env['oauth2'] = ResourceRequest.new(env)
+      logger = OAuth2::Provider::Logging::PortableLogger.new(env)
 
-      response = catch :oauth2 do
-        if request.path == OAuth2::Provider.access_token_path
-          handle_access_token_request(env)
-        else
-          @app.call(env)
+      begin
+        request = env['oauth2'] = ResourceRequest.new(env)
+
+        response = catch :oauth2 do
+          if request.path == OAuth2::Provider.access_token_path
+            handle_access_token_request(env)
+          else
+            @app.call(env)
+          end
         end
+      rescue InvalidRequest => e
+        logger.error "Invalid request. Responding with Bad Request due to '#{e}'"
+        [400, {}, e.message]
       end
-    rescue InvalidRequest => e
-      log "FAILURE: Responding with Bad Request due to '#{e}'"
-      [400, {}, e.message]
     end
 
     def handle_access_token_request(env)
