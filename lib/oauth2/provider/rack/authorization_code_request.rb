@@ -20,7 +20,7 @@ module OAuth2::Provider::Rack
       )
       code = grant.authorization_codes.create! :redirect_uri => redirect_uri
       # TODO log token
-      log "Granting new code..."
+      info "Granting new code..."
       throw_response Responses.redirect_with_code(code.code, redirect_uri)
     end
 
@@ -28,20 +28,20 @@ module OAuth2::Provider::Rack
       if existing = OAuth2::Provider.authorization_class.allowing(client, resource_owner, scope).first
         code = existing.authorization_codes.create! :redirect_uri => redirect_uri
         # TODO: log more information
-        log "Granting existing code..."
+        info "Granting existing code..."
         throw_response Responses.redirect_with_code(code.code, redirect_uri)
       end
     end
 
     def deny!
       # TODO: log more informaton
-      log "Request denied"
+      info "Request denied"
       throw_response Responses.redirect_with_error('access_denied', redirect_uri)
     end
 
     def invalid_scope!
       # TODO: log more informaton
-      log "Scope '#{scope}' is not allowed."
+      info "Scope '#{scope}' is not allowed."
       throw_response Responses.redirect_with_error('invalid_scope', redirect_uri)
     end
 

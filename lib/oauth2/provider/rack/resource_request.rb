@@ -75,13 +75,13 @@ module OAuth2::Provider::Rack
         msg = "Verified authorization for #{@authorization.client.name} (#{@authorization.client.oauth_identifier})"
         msg += @authorization.expires_at ? " until #{@authorization.expires_at.utc.iso8601}" : " permanently"
         msg += " next refresh in #{(@access_token.expires_at - Time.now).floor} second(s)" 
-        log msg 
+        info msg 
       end
     end
 
     def block_invalid_request
       if token_from_param && token_from_header && (token_from_param != token_from_header)
-        log "Conflicting tokens provided in header and parameters.", :level => :error
+        error "Conflicting tokens provided in header and parameters."
         invalid_request! 'both authorization header and oauth_token provided, with conflicting tokens'
       end
     end
@@ -90,10 +90,10 @@ module OAuth2::Provider::Rack
       @access_token = OAuth2::Provider.access_token_class.find_by_access_token(token)
       @authorization = access_token.authorization if access_token
       if @access_token.nil?
-        log "Invalid token: No token supplied", :level => :error
+        error "Invalid token: No token supplied"
         authentication_required! 'invalid_token' 
       elsif @access_token.expired?
-        log "Invalid token: Supplied token is expired", :level => :error
+        error "Invalid token: Supplied token is expired"
         authentication_required! 'invalid_token' 
       end
     end
