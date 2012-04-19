@@ -29,6 +29,15 @@ module OAuth2::Provider
       nil
     end
 
+    SEVERITY_MAPPING.keys.each do |key|
+      define_method key do |*args|
+        msg, extra = args
+        extra ||= {}
+        extra[:level] = key
+        log msg, extra
+      end
+    end
+
     def portable_logger
       PortableLogger.new env
     end
