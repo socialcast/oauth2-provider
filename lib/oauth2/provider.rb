@@ -1,4 +1,5 @@
 require 'active_support/all'
+require 'rack-logster'
 
 module OAuth2
   module Provider
@@ -14,6 +15,7 @@ module OAuth2
     mattr_accessor :access_token_class_name
     mattr_accessor :authorization_code_class_name
     mattr_accessor :client_class_name
+    mattr_accessor :logger
 
     [:resource_owner, :client, :authorization, :access_token, :authorization_code].each do |model|
       instance_eval %{
