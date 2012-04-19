@@ -3,13 +3,12 @@ require "spec_helper"
 describe OAuth2::Provider::Logging do
   class LogTestHarness
     include OAuth2::Provider::Logging
+    def env; {}; end
   end
-
 
   subject do
     LogTestHarness.new
   end
-
 
   describe "log method" do
     let(:mock_logger) { stub(:mock_logger) }
@@ -18,9 +17,8 @@ describe OAuth2::Provider::Logging do
 
     before do
       mock_logger.stubs(:add)
-      OAuth2::Provider.stubs(:logger).returns(mock_logger)
+      subject.stubs(:current_logger).returns(mock_logger)
     end
-
 
     context "without a logger" do
       before do
@@ -68,40 +66,34 @@ describe OAuth2::Provider::Logging do
     end
   end
 
-
   describe 'current_logger method' do
-    let(:mock_custom_logger) { :custom_logger }
     let(:mock_rack_logger) { :rack_logger }
 
-    context "with a custom logger" do
-      before do
-        OAuth2::Provider.stubs(:logger).returns(mock_custom_logger)
-      end
-
-      it "should return the custom logger" do
-        subject.send(:current_logger).should == mock_custom_logger
-      end
-
-      context "and a rack logger" do
-        before do
-          subject.stubs(:get_env_property).with('rack.logger').returns(mock_rack_logger)
-        end
-
-        it "should return the custom logger in preference to the rack logger" do
-          subject.send(:current_logger).should == mock_custom_logger
-        end
-      end
+    it "should return nil" do
+      subject.send(:current_logger).should be_nil
     end
 
     context "with a rack logger" do
       before do
-        subject.stubs(:get_env_property).with('rack.logger').returns(mock_rack_logger)
+        subject.stubs(:env).returns('rack.logger' => mock_rack_logger)
       end
 
       it "should return the custom logger in preference to the rack logger" do
         subject.send(:current_logger).should == mock_rack_logger
       end
     end
+  end
 
+  describe 'portable_logger method' do
+    let(:log_parent) do
+      LogTestHarness.new.tap do |lth|
+        lth.stubs(:env).returns('foo' => 'bar') 
+      end
+    end
+
+    subject { log_parent.portable_logger } 
+
+    its(:class) { should == OAuth2::Provider::Logging::PortableLogger }
+    its(:env) { should == log_parent.env }
   end
 end

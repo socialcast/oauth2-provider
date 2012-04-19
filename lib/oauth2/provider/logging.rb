@@ -11,37 +11,50 @@ module OAuth2::Provider
     }
 
     def set_log_context(context)
-      @logging_context = context
+      env['log_context'] = context
     end
 
     def clear_log_context
-      @logging_context = nil
+      set_log_context nil 
     end
 
     def log(message, extra = {})
       return unless current_logger
 
-      extra = (@logging_context && @logging_context.merge(extra)) || extra
+      extra = (log_context && log_context.merge(extra)) || extra
       extra[:level] ||= :info
-      extra[:request_id] ||= (get_env_property('http_x_request_id') || 'N/A')
+      extra[:request_id] ||= (env['http_x_request_id'] || 'N/A')
 
       current_logger.add SEVERITY_MAPPING[extra[:level]], format_log_message(message, extra)
       nil
     end
 
-    private
-   
-    # FIXME this is a little gross, but it makes it easy to stub.
-    def get_env_property(name)
-      (self.respond_to?(:env) ? env : {})[name]
+    def portable_logger
+      PortableLogger.new env
     end
 
+    private
+
+    def log_context
+      env['log_context']
+    end
+   
     def current_logger
-      OAuth2::Provider.logger || get_env_property('rack.logger')
+      env['rack.logger']
     end
 
     def format_log_message(message, extra = {})
       [ "[#{extra[:component] || 'OAUTH2-PROVIDER'}]", extra[:request_id] || "N/A", Time.now.utc.iso8601, '-', message].join(" ") 
+    end
+
+    class PortableLogger
+      include Logging
+
+      attr_reader :env
+
+      def initialize(env)
+        @env = env
+      end
     end
   end
 end
