@@ -1,4 +1,5 @@
 require 'active_support/all'
+require 'rack-logster'
 
 module OAuth2
   module Provider
@@ -6,9 +7,6 @@ module OAuth2
     autoload :Models, 'oauth2/provider/models'
     autoload :Random, 'oauth2/provider/random'
     autoload :Rack, 'oauth2/provider/rack'
-    autoload :Logging, 'oauth2/provider/logging'
-
-    include Logging
 
     mattr_accessor :backend
     self.backend = :activerecord
