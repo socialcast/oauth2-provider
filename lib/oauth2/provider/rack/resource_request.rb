@@ -73,7 +73,7 @@ module OAuth2::Provider::Rack
 
         # TODO log token hash
         msg = "Verified authorization for #{@authorization.client.name} (#{@authorization.client.oauth_identifier})"
-        msg += @authorization.expires_at ? " until #{@authorization.expires_at.utc.iso8061}" : " permanently"
+        msg += @authorization.expires_at ? " until #{@authorization.expires_at.utc.iso8601}" : " permanently"
         msg += " next refresh in #{(@access_token.expires_at - Time.now).floor} second(s)" 
         log msg 
       end
