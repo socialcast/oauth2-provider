@@ -52,7 +52,7 @@ module OAuth2::Provider::Models::AccessToken
             if result.authorization.expires_at && result.authorization.expires_at < result.expires_at
               result.expires_at = result.authorization.expires_at
             end
-            result.save!.tap{ logger "Refreshed session until #{result.expires_at.utc}" if logger }
+            result.save!.tap{ logger.info "Refreshed session until #{result.expires_at.utc}" if logger }
           end
         else
           logger.error "Refresh Failed: refresh token '#{refresh_token}' is not refreshable." if logger
