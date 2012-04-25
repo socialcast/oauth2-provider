@@ -20,7 +20,7 @@ module OAuth2::Provider::Rack
         end
       rescue InvalidRequest => e
         logger.error "Invalid request. Responding with Bad Request due to '#{e}'"
-        [400, {}, e.message]
+        [400, {}, [e.message]]
       end
     end
 

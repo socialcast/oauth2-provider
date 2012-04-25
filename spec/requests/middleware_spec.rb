@@ -12,13 +12,13 @@ describe OAuth2::Provider::Rack::Middleware do
   describe "in general" do
     let :main_app do
       Proc.new do
-        [200, {'Content-Type' => 'text/plain'}, 'Apptastic']
+        [200, {'Content-Type' => 'text/plain'}, ['Apptastic']]
       end
     end
 
     it "passes requests to /oauth/access_token to #handle_access_token_request" do
       subject.expects(:handle_access_token_request).returns(
-        [418, {'Content-Type' => 'text/plain'}, 'Short and stout']
+        [418, {'Content-Type' => 'text/plain'}, ['Short and stout']]
       )
       get "/oauth/access_token"
       response.status.should eql(418)
@@ -40,11 +40,17 @@ describe OAuth2::Provider::Rack::Middleware do
 
       it "passes requests to /api/oauth/access_token to #handle_access_token_request" do
         subject.expects(:handle_access_token_request).returns(
-          [418, {'Content-Type' => 'text/plain'}, 'Short and stout']
+          [418, {'Content-Type' => 'text/plain'}, ['Short and stout']]
         )
         get "/api/oauth/access_token"
         response.status.should eql(418)
         response.body.should eql('Short and stout')
+      end
+
+      after(:each) do
+        OAuth2::Provider.configure do |config|
+          config.access_token_path = '/oauth/access_token'
+        end
       end
     end
   end
@@ -52,7 +58,7 @@ describe OAuth2::Provider::Rack::Middleware do
   describe "when main app throws :oauth2 response" do
     let :main_app do
       Proc.new do
-        throw :oauth2, [418, {'Content-Type' => 'text/plain'}, 'Teapot']
+        throw :oauth2, [418, {'Content-Type' => 'text/plain'}, ['Teapot']]
       end
     end
 
