@@ -127,6 +127,7 @@ describe "POSTs to /oauth/access_token" do
 
       it "responds with claimed access token" do
         token = OAuth2::Provider.access_token_class.find_by_access_token(json_from_response["access_token"])
+        debugger if token.nil?
         token.should_not be_nil
       end
 
@@ -381,6 +382,7 @@ describe "POSTs to /oauth/access_token" do
 
     describe "client_credentials" do
       before :each do
+        @client.update_attribute(:confidential, true)
         @valid_params["grant_type"] = "client_credentials"
       end
 
@@ -415,7 +417,6 @@ describe "POSTs to /oauth/access_token" do
         it_behaves_like 'client_credentials grant type'
       end
     end
-
   end
 
   describe "When using a custom client class" do
