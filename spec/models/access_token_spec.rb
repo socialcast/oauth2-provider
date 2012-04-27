@@ -131,7 +131,7 @@ describe OAuth2::Provider.access_token_class do
     end
 
     it "returns token with expires_at set to authorization.expires_at if validation would fail otherwise" do
-      subject.authorization.update_attributes(:expires_at => 5.minutes.from_now)
+      subject.authorization.update_attributes({:expires_at => 5.minutes.from_now}, :as => :authority)
       result = OAuth2::Provider.access_token_class.refresh_with(subject.refresh_token)
       result.expires_at.should == 5.minutes.from_now
     end

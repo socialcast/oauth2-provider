@@ -6,6 +6,14 @@ module OAuth2::Provider::Models::Authorization
     self.default_token_lifespan = nil
 
     validates_presence_of :client
+
+    attr_accessible
+    attr_accessible :client_id, :client, :resource_owner, :resource_owner_type, :resource_owner_id, :scope, :expires_at, :as => :authority
+  end
+
+  def initialize(*args)
+    super
+    assign_attributes(args.first, :as => :authority)
   end
 
   def has_scope?(s)

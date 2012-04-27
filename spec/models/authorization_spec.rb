@@ -27,6 +27,30 @@ describe OAuth2::Provider.authorization_class do
       subject.scope = "first second third"
       subject.should_not have_scope("fourth")
     end
+
+    it "protects its attribtues from mass assignment by default" do
+      old_attribs = subject.attributes.dup
+      subject.assign_attributes({
+        :scope => "foo bar",
+        :expires_at => Time.now,
+        :resource_owner_id => 123,
+        :resource_owner_type => "foobar",
+        :client_id => 123
+      })
+      subject.attributes.should == old_attribs
+    end
+
+    it "allows mass assignment by authorities" do
+      old_attribs = subject.attributes.dup
+      subject.assign_attributes({
+        :scope => "foo bar",
+        :expires_at => Time.now,
+        :resource_owner_id => 123,
+        :resource_owner_type => "foobar",
+        :client_id => 123
+      }, :as => :authority)
+      subject.attributes.should_not == old_attribs
+    end
   end
 
   describe "a new instance" do
