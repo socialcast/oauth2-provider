@@ -74,6 +74,26 @@ describe OAuth2::Provider.access_token_class do
       subject.authorization.expires_at = 60.minutes.ago
       subject.should_not be_refreshable
     end
+
+    it "protects its attribtues from mass assignment by default" do
+      old_attribs = subject.attributes.dup
+      subject.assign_attributes({
+        :access_token => "foo",
+        :refresh_token => "bar",
+        :expires_at => Time.now
+      })
+      subject.attributes.should == old_attribs
+    end
+
+    it "allows mass assignment by authorities" do
+      old_attribs = subject.attributes.dup
+      subject.assign_attributes({
+        :access_token => "foo",
+        :refresh_token => "bar",
+        :expires_at => Time.now
+      }, :as => :authority)
+      subject.attributes.should_not == old_attribs
+    end
   end
 
   describe "a new instance" do

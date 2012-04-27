@@ -23,6 +23,8 @@ class OAuth2::Provider::Models::Mongoid::AccessToken
       before_save do
         self.client ||= authorization.client
       end
+
+      attr_accessible :authorization, :oauth_authorization_id, :oauth_client_id, :access_token, :refresh_token, :expires_at, :as => :authority
     end
 
     module ClassMethods
