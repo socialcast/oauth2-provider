@@ -7,10 +7,13 @@ module OAuth2::Provider::Models::Client
     include OAuth2::Provider::Models::RandomToken
     validates_presence_of :oauth_identifier, :oauth_secret, :name
     validates_uniqueness_of :oauth_identifier
+    attr_accessible
+    attr_accessible :name, :oauth_redirect_uri, :oauth_secret, :oauth_identifier, :as => :authority
   end
 
   def initialize(*args, &block)
     super
+    assign_attributes(args[0], :as => :authority)
     self.oauth_identifier ||= self.class.unique_random_token(:oauth_identifier)
     self.oauth_secret ||= self.class.unique_random_token(:oauth_secret)
   end
