@@ -85,7 +85,7 @@ describe "A request for a protected resource" do
 
   describe "with an expired token that can be refreshed" do
     before :each do
-      @token.update_attributes(:expires_at => 1.day.ago)
+      @token.update_attributes({:expires_at => 1.day.ago}, :as => :authority)
       get "/protected", :oauth_token => @token.access_token
     end
 
@@ -95,7 +95,7 @@ describe "A request for a protected resource" do
 
   describe "with an expired token that can't be refreshed" do
     before :each do
-      @token.update_attributes(:expires_at => 1.day.ago, :refresh_token => nil)
+      @token.update_attributes({:expires_at => 1.day.ago, :refresh_token => nil}, :as => :authority)
       get "/protected", :oauth_token => @token.access_token
     end
 
