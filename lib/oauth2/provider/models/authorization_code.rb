@@ -7,10 +7,14 @@ module OAuth2::Provider::Models::AuthorizationCode
 
     delegate :client, :resource_owner, :to => :authorization
     validates_presence_of :authorization, :code, :expires_at, :redirect_uri
+    
+    attr_accessible
+    attr_accessible :code, :expires_at, :redirect_uri, :authorization, :as => :authority
   end
 
   def initialize(*args)
     super
+    assign_attributes args.first, :as => :authority
     self.code ||= self.class.unique_random_token(:code)
   end
 

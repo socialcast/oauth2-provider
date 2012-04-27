@@ -9,14 +9,18 @@ module OAuth2::Provider::Models::AccessToken
     validate :expires_at_isnt_greater_than_authorization
 
     delegate :scope, :has_scope?, :client, :resource_owner, :to => :authorization
+    
+    attr_accessible
   end
 
-  def initialize(attributes = {}, *args, &block)
-    attributes ||= {} # Mongoid passes in nil
-    super attributes.reverse_merge(
+  def initialize(attribs = {}, *args, &block)
+    attribs = (attribs || {}).reverse_merge(
       :access_token => self.class.unique_random_token(:access_token),
       :refresh_token => self.class.unique_random_token(:refresh_token)
     )
+    
+    super attribs, &block
+    assign_attributes(attribs, :as => :authority)
   end
 
   def as_json(options = {})

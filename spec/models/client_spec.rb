@@ -36,6 +36,28 @@ describe OAuth2::Provider.client_class do
       subject.allow_grant_type?('authorization_code').should be_true
       subject.allow_grant_type?('client_credentials').should be_true
     end
+
+    it "protects its attribtues from mass assignment by default" do
+      old_attribs = subject.attributes.dup
+      subject.assign_attributes({
+        :name => "foo",
+        :oauth_redirect_uri => "bar",
+        :oauth_identifier => "1234",
+        :oauth_secret => "4321"
+      })
+      subject.attributes.should == old_attribs
+    end
+
+    it "allows mass assignment by authorities" do
+      old_attribs = subject.attributes.dup
+      subject.assign_attributes({
+        :name => "foo",
+        :oauth_redirect_uri => "bar",
+        :oauth_identifier => "1234",
+        :oauth_secret => "4321"
+      }, :as => :authority)
+      subject.attributes.should_not == old_attribs
+    end
   end
 
   describe "a new instance" do
