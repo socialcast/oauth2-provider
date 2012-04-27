@@ -42,6 +42,26 @@ describe OAuth2::Provider.authorization_code_class do
       subject.expires_at = Time.now
       subject.should_not be_expired
     end
+
+    it "protects its attribtues from mass assignment by default" do
+      old_attribs = subject.attributes.dup
+      subject.assign_attributes({
+        :code => "foo",
+        :expires_at => Time.now,
+        :redirect_uri => "bazquux"
+      })
+      subject.attributes.should == old_attribs
+    end
+
+    it "allows mass assignment by authorities" do
+      old_attribs = subject.attributes.dup
+      subject.assign_attributes({
+        :code => "foo",
+        :expires_at => Time.now,
+        :redirect_uri => "bazquux"
+      }, :as => :authority)
+      subject.attributes.should_not == old_attribs
+    end
   end
 
   describe "a new instance" do
