@@ -19,11 +19,8 @@ module OAuth2::Provider::Models::AccessToken
       :refresh_token => self.class.unique_random_token(:refresh_token)
     )
     
-    super(attribs) do |token|
-      attribs.each do |attrib, value|
-        self.send("#{attrib}=", value)
-      end
-    end
+    super attribs, &block
+    assign_attributes(attribs, :as => :authority)
   end
 
   def as_json(options = {})
